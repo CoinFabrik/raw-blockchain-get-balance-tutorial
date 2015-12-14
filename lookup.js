@@ -16,3 +16,51 @@ try {
 
 console.log('Getting transactions related to address ' + addressString +' ...');
 
+function each (obj, func, context) {
+  var kindex,
+    length;
+  for (kindex = 0, length = obj.length; kindex < length; kindex++) {
+    func.call(context, obj[kindex], kindex, obj);
+  }
+}
+
+var incoming = [];
+
+getBlocks(function(block) {
+  each(block.rawTransactions, function(raw) {
+    var tx = new bitcore.Transaction(raw);
+
+	each(tx.outputs, function(o, index) {
+      var address = o.script.toAddress();
+      if (!address) {
+        return;
+      }
+      if(addressBuffer.compare(address.toBuffer()) === 0) {
+        var incomingInfo = {
+          txid: tx.id,
+          index: index,
+          satoshis: o.satoshis
+        };
+        console.log('Found incoming: ' + o.satoshis + ' satoshis. (txid: ' + tx.id + ' )');
+        incoming.push(incomingInfo);
+      }
+    });
+
+     //Check outgoing funds
+    each(tx.inputs, function(input) {
+      var prevTx = input.prevTxId.toString('hex'),
+        length;
+      for(var i = 0, length = incoming.length; i < length; i++) {
+        if (incoming[i].txid === prevTx && incoming[i].index === input.outputIndex) {
+          console.log('Found outgoing: ' + o.satoshis + ' satoshis. (txid: ' + tx.id + ' )');
+        }
+      }
+    });
+});
+
+console.timeEnd('scan time');
+console.log('Incoming: ' + incoming.map(function(a) {
+  return a.satoshis;
+}).toString());
+
+console.log('Outgoing: ' + outgoing.toString());
