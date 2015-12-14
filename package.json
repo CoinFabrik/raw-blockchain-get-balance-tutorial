@@ -1,0 +1,14 @@
+{
+  "name": "get-balance-tutorial",
+  "version": "1.0.0",
+  "description": "Get the balance of a given address by reading the raw blockchain data.",
+  "main": "lookup.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fernando D. Tiberti",
+  "license": "ISC",
+  "dependencies": {
+    "bitcore-lib": "^0.13.11"
+  }
+}
