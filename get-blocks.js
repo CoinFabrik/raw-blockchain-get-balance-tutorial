@@ -99,13 +99,14 @@ function readHeader(reader) {
 
 module.exports = function getBlocks(onBlock) {
   for(var i = 341; i < 388; i++) {
+    console.time('... it took');
     var fileNumber = ('0000' + i).slice(-5),
       data = fs.readFileSync(bitcoinDataDir + '/blocks/blk' + fileNumber + '.dat'),
       reader = bufferReader(data),
       magic = reader.read(4),
       blockSize = reader.read(4),
       blockHeader = readHeader(reader);
-    console.log('Reading file ' + fileNumber);
+    console.log('Reading from blk' + fileNumber + '.dat ...');
     while(blockHeader !== null) {
       var txCount = toInt(readVarInt(reader)),
         txs = [];
@@ -114,12 +115,13 @@ module.exports = function getBlocks(onBlock) {
       }
       onBlock({
         time: blockHeader.time,
-        rawTxs: txs
+        rawTransactions: txs
       });
       magic = reader.read(4);
       blockSize = reader.read(4);
       blockHeader = readHeader(reader);
     }
+    console.timeEnd('... it took');
   }
 };
 
