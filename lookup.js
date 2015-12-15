@@ -25,8 +25,45 @@ function each (obj, func, context) {
 }
 
 var incoming = [];
+var outgoing= [];
+
+var blockCache = (function(){
+  var blocks = [],
+    BLOCK_DOWNLOAD_WINDOW = 1024;
+
+  return {
+    addBlock: function addBlock(time, inputs) {
+      inputs = inputs.map(function(input) {
+        return {
+          prevTx: input.prevTxId.toString('hex'),
+          outputIndex: input.outputIndex
+        }
+      });
+      blocks.push({
+        time: time,
+        inputs: inputs
+      });
+      if(blocks.length > BLOCK_DOWNLOAD_WINDOW) {
+        blocks.shift();
+      }
+    },
+    checkIncomingSpending: function checkIncomingSpending(currentTime, incomingInfo) {
+      each(blocks, function(block) {
+        if (block.time >= currentTime) {
+          each(block.inputs, function(i) {
+            if(i.prevTx == incomingInfo.txid && i.outputIndex == incomingInfo.index) {
+              outgoing.push(incomingInfo.satoshis);
+              console.log('Added future spending, stored time: ' + block.time + ' , current time: ' + currentTime);
+            }
+          });
+        }
+      });
+    }
+  };
+}());
 
 getBlocks(function(block) {
+  var unmatchedInputs = [];
   each(block.rawTransactions, function(raw) {
     var tx = new bitcore.Transaction(raw);
 
@@ -43,18 +80,25 @@ getBlocks(function(block) {
         };
         console.log('Found incoming: ' + o.satoshis + ' satoshis. (txid: ' + tx.id + ' )');
         incoming.push(incomingInfo);
+        blockCache.checkIncomingSpending(block.time, incomingInfo);
       }
     });
 
      //Check outgoing funds
+
     each(tx.inputs, function(input) {
       var prevTx = input.prevTxId.toString('hex'),
-        i, length;
+        i, length, hasMatchingSpend = false;
       for(i = 0, length = incoming.length; i < length; i++) {
         if (incoming[i].txid === prevTx && incoming[i].index === input.outputIndex) {
           console.log('Found outgoing: ' + incoming[i].satoshis + ' satoshis. (txid: ' + tx.id + ' )');
+          hasMatchingSpend = true;
         }
+      }
+      if (!hasMatchingSpend) {
+        unmatchedInputs.push(input);
       }
     });
   });
+  blockCache.addBlock(block.time, unmatchedInputs);
 });
