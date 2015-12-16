@@ -1,0 +1,1 @@
+exports.bitcoinDataDir = 'D:/bitcoin-blockchain';

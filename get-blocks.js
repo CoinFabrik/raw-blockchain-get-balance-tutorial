@@ -1,6 +1,5 @@
 var fs = require('fs'),
-  bitcore = require('bitcore-lib'),
-  bitcoinDataDir = 'D:/bitcoin-blockchain';
+  bitcoinDataDir = require('./config').bitcoinDataDir;
 
 function readVarInt(stream) {
   var size = stream.read(1);
@@ -98,7 +97,7 @@ function readHeader(reader) {
 }
 
 module.exports = function getBlocks(onBlock) {
-  for(var i = 341; i < 388; i++) {
+  for(var i = 0; i < 389; i++) {
     console.time('... it took');
     var fileNumber = ('0000' + i).slice(-5),
       data = fs.readFileSync(bitcoinDataDir + '/blocks/blk' + fileNumber + '.dat'),
