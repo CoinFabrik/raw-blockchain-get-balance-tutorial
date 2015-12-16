@@ -48,7 +48,6 @@ getBlocks(function(block) {
     });
 
      //Check outgoing funds
-
     fast.forEach(tx.inputs, function(input) {
       var prevTx = input.prevTxId.toString('hex'),
         i, length, hasMatchingSpend = false;
@@ -66,5 +65,4 @@ getBlocks(function(block) {
   });
   blockCache.addBlock(block.time, unmatchedInputs);
 });
-
 console.log('Final balance: ' + finalBalance + ' satoshis.');

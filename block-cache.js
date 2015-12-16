@@ -3,6 +3,7 @@ var fast = require('fast.js'),
   BLOCK_DOWNLOAD_WINDOW = 1024;
 
 exports.addBlock = function addBlock(time, inputs) {
+  //We only need the input's prevTxId and outputIndex
   inputs = fast.map(inputs, function(input) {
     return {
       prevTx: input.prevTxId.toString('hex'),
@@ -13,6 +14,7 @@ exports.addBlock = function addBlock(time, inputs) {
     time: time,
     inputs: inputs
   });
+  //Limit the block array to 1024 items.
   if(blocks.length > BLOCK_DOWNLOAD_WINDOW) {
     blocks.shift();
   }
