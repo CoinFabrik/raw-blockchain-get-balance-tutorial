@@ -26,6 +26,7 @@ getBlocks(function(block) {
   fast.forEach(block.rawTransactions, function(raw) {
     var tx = new bitcore.Transaction(raw);
 
+    //Check incoming funds
     fast.forEach(tx.outputs, function(o, index) {
       var address = o.script.toAddress();
       if (!address) {
@@ -47,7 +48,7 @@ getBlocks(function(block) {
       }
     });
 
-     //Check outgoing funds
+    //Check outgoing funds
     fast.forEach(tx.inputs, function(input) {
       var prevTx = input.prevTxId.toString('hex'),
         i, length, hasMatchingSpend = false;
