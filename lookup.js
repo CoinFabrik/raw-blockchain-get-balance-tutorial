@@ -47,17 +47,18 @@ var blockCache = (function(){
         blocks.shift();
       }
     },
-    checkIncomingSpending: function checkIncomingSpending(currentTime, incomingInfo) {
+    isSpent: function isSpent(currentTime, incomingInfo) {
+      var isSpent = false;
       each(blocks, function(block) {
         if (block.time >= currentTime) {
           each(block.inputs, function(i) {
             if(i.prevTx == incomingInfo.txid && i.outputIndex == incomingInfo.index) {
-              outgoing.push(incomingInfo.satoshis);
-              console.log('Added future spending, stored time: ' + block.time + ' , current time: ' + currentTime);
+              isSpent = true;
             }
           });
         }
       });
+      return isSpent;
     }
   };
 }());
@@ -80,7 +81,9 @@ getBlocks(function(block) {
         };
         console.log('Found incoming: ' + o.satoshis + ' satoshis. (txid: ' + tx.id + ' )');
         incoming.push(incomingInfo);
-        blockCache.checkIncomingSpending(block.time, incomingInfo);
+        if (blockCache.isSpent(block.time, incomingInfo)) {
+          console.log('Found outgoing: ' + o.satoshis + ' in block cache.');
+        }
       }
     });
 
