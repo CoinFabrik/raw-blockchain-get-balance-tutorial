@@ -1,1 +1,1 @@
-exports.bitcoinDataDir = 'D:/bitcoin-blockchain';
+exports.bitcoinDataDir = '~/.bitcoin/';
