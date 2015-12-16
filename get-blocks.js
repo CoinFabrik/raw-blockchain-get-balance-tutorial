@@ -97,15 +97,21 @@ function readHeader(reader) {
 }
 
 module.exports = function getBlocks(onBlock) {
-  for(var i = 0; i < 389; i++) {
+  var i = 0,
+    path = bitcoinDataDir + '/blocks/blk' + ('0000' + i).slice(-5) + '.dat',
+    data;
+  try {
+    data = fs.readFileSync(path);
+  } catch (e) {
+    throw 'File ' + path + ' not found. Set up your bitcoin data directory in config.js';
+  }
+  while(data) {
     console.time('... it took');
-    var fileNumber = ('0000' + i).slice(-5),
-      data = fs.readFileSync(bitcoinDataDir + '/blocks/blk' + fileNumber + '.dat'),
-      reader = bufferReader(data),
+    var reader = bufferReader(data),
       magic = reader.read(4),
       blockSize = reader.read(4),
       blockHeader = readHeader(reader);
-    console.log('Reading from blk' + fileNumber + '.dat ...');
+    console.log('Reading ' + path + ' ...');
     while(blockHeader !== null) {
       var txCount = toInt(readVarInt(reader)),
         txs = [];
@@ -121,6 +127,13 @@ module.exports = function getBlocks(onBlock) {
       blockHeader = readHeader(reader);
     }
     console.timeEnd('... it took');
+    i++;
+    try {
+      path = bitcoinDataDir + '/blocks/blk' + ('0000' + i).slice(-5) + '.dat';
+      data = fs.readFileSync(path);
+    } catch (e) {
+      data = null;
+    }
   }
 };
 
