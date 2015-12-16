@@ -19,15 +19,10 @@ exports.addBlock = function addBlock(time, inputs) {
 };
 
 exports.isSpent = function isSpent(currentTime, incomingInfo) {
-  var isSpent = false;
-  fast.forEach(blocks, function(block) {
-    if (block.time >= currentTime) {
-      fast.forEach(block.inputs, function(i) {
-        if(i.prevTx == incomingInfo.txid && i.outputIndex == incomingInfo.index) {
-          isSpent = true;
-        }
+  return fast.some(blocks, function(block) {
+    return block.time >= currentTime &&
+      fast.some(block.inputs, function(i) {
+        return i.prevTx == incomingInfo.txid && i.outputIndex == incomingInfo.index
       });
-    }
-  });
-  return isSpent;
+    });
 };
