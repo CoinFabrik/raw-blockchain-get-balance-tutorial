@@ -24,44 +24,9 @@ function each (obj, func, context) {
   }
 }
 
-var blockCache = (function(){
-  var blocks = [],
-    BLOCK_DOWNLOAD_WINDOW = 1024;
-
-  return {
-    addBlock: function addBlock(time, inputs) {
-      inputs = inputs.map(function(input) {
-        return {
-          prevTx: input.prevTxId.toString('hex'),
-          outputIndex: input.outputIndex
-        }
-      });
-      blocks.push({
-        time: time,
-        inputs: inputs
-      });
-      if(blocks.length > BLOCK_DOWNLOAD_WINDOW) {
-        blocks.shift();
-      }
-    },
-    isSpent: function isSpent(currentTime, incomingInfo) {
-      var isSpent = false;
-      each(blocks, function(block) {
-        if (block.time >= currentTime) {
-          each(block.inputs, function(i) {
-            if(i.prevTx == incomingInfo.txid && i.outputIndex == incomingInfo.index) {
-              isSpent = true;
-            }
-          });
-        }
-      });
-      return isSpent;
-    }
-  };
-}());
-
 var incoming = [],
-  finalBalance = 0;
+  finalBalance = 0,
+  blockCache = require('./block-cache');
 
 getBlocks(function(block) {
   var unmatchedInputs = [];
@@ -83,7 +48,7 @@ getBlocks(function(block) {
         finalBalance += o.satoshis;
         incoming.push(incomingInfo);
         if (blockCache.isSpent(block.time, incomingInfo)) {
-          console.log('Found outgoing: ' + o.satoshis + ' in block cache.');
+          console.log('Found outgoing: ' + o.satoshis + ' satoshis in block cache.');
           finalBalance -= o.satoshis;
         }
       }
