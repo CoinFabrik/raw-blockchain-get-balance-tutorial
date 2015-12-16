@@ -1,5 +1,6 @@
 var getBlocks = require('./get-blocks'),
-	bitcore = require('bitcore-lib');
+	bitcore = require('bitcore-lib'),
+  fast = require('fast.js');
 
 var addressString = process.argv[2];
 
@@ -16,24 +17,16 @@ try {
 
 console.log('Getting transactions related to address ' + addressString +' ...');
 
-function each (obj, func, context) {
-  var kindex,
-    length;
-  for (kindex = 0, length = obj.length; kindex < length; kindex++) {
-    func.call(context, obj[kindex], kindex, obj);
-  }
-}
-
 var incoming = [],
   finalBalance = 0,
   blockCache = require('./block-cache');
 
 getBlocks(function(block) {
   var unmatchedInputs = [];
-  each(block.rawTransactions, function(raw) {
+  fast.forEach(block.rawTransactions, function(raw) {
     var tx = new bitcore.Transaction(raw);
 
-	  each(tx.outputs, function(o, index) {
+    fast.forEach(tx.outputs, function(o, index) {
       var address = o.script.toAddress();
       if (!address) {
         return;
@@ -56,7 +49,7 @@ getBlocks(function(block) {
 
      //Check outgoing funds
 
-    each(tx.inputs, function(input) {
+    fast.forEach(tx.inputs, function(input) {
       var prevTx = input.prevTxId.toString('hex'),
         i, length, hasMatchingSpend = false;
       for(i = 0, length = incoming.length; i < length; i++) {

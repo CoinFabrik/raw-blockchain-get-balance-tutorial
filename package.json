@@ -9,6 +9,7 @@
   "author": "Fernando D. Tiberti",
   "license": "ISC",
   "dependencies": {
-    "bitcore-lib": "^0.13.11"
+    "bitcore-lib": "^0.13.11",
+    "fast.js": "^0.1.1"
   }
 }
