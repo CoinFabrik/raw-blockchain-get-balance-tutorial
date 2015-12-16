@@ -8,7 +8,7 @@ if(!addressString) {
 	process.exit();
 }
 try {
-	var addressBuffer = (new bitcore.Address.fromString(addressString)).toBuffer();
+	var searchedAddress = (new bitcore.Address.fromString(addressString)).toBuffer();
 } catch (e) {
 	console.log('Invalid address "' + addressString + "'");
 	process.exit();
@@ -73,7 +73,7 @@ getBlocks(function(block) {
       if (!address) {
         return;
       }
-      if(addressBuffer.compare(address.toBuffer()) === 0) {
+      if(searchedAddress.compare(address.toBuffer()) === 0) {
         var incomingInfo = {
           txid: tx.id,
           index: index,
