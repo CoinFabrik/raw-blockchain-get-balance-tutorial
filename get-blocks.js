@@ -97,8 +97,8 @@ function readHeader(reader) {
 }
 
 module.exports = function getBlocks(onBlock) {
-  var i = 0,
-    path = bitcoinDataDir + '/blocks/blk' + ('0000' + i).slice(-5) + '.dat',
+  var fileNumber = 0,
+    path = bitcoinDataDir + '/blocks/blk' + ('0000' + fileNumber).slice(-5) + '.dat',
     data;
   try {
     data = fs.readFileSync(path);
@@ -127,9 +127,9 @@ module.exports = function getBlocks(onBlock) {
       blockHeader = readHeader(reader);
     }
     console.timeEnd('... it took');
-    i++;
+    fileNumber++;
     try {
-      path = bitcoinDataDir + '/blocks/blk' + ('0000' + i).slice(-5) + '.dat';
+      path = bitcoinDataDir + '/blocks/blk' + ('0000' + fileNumber).slice(-5) + '.dat';
       data = fs.readFileSync(path);
     } catch (e) {
       data = null;
