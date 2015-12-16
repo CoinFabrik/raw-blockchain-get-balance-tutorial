@@ -24,9 +24,6 @@ function each (obj, func, context) {
   }
 }
 
-var incoming = [];
-var outgoing= [];
-
 var blockCache = (function(){
   var blocks = [],
     BLOCK_DOWNLOAD_WINDOW = 1024;
@@ -63,6 +60,9 @@ var blockCache = (function(){
   };
 }());
 
+var incoming = [],
+  finalBalance = 0;
+
 getBlocks(function(block) {
   var unmatchedInputs = [];
   each(block.rawTransactions, function(raw) {
@@ -80,9 +80,11 @@ getBlocks(function(block) {
           satoshis: o.satoshis
         };
         console.log('Found incoming: ' + o.satoshis + ' satoshis. (txid: ' + tx.id + ' )');
+        finalBalance += o.satoshis;
         incoming.push(incomingInfo);
         if (blockCache.isSpent(block.time, incomingInfo)) {
           console.log('Found outgoing: ' + o.satoshis + ' in block cache.');
+          finalBalance -= o.satoshis;
         }
       }
     });
@@ -95,6 +97,7 @@ getBlocks(function(block) {
       for(i = 0, length = incoming.length; i < length; i++) {
         if (incoming[i].txid === prevTx && incoming[i].index === input.outputIndex) {
           console.log('Found outgoing: ' + incoming[i].satoshis + ' satoshis. (txid: ' + tx.id + ' )');
+          finalBalance -= incoming[i].satoshis;
           hasMatchingSpend = true;
         }
       }
@@ -105,3 +108,5 @@ getBlocks(function(block) {
   });
   blockCache.addBlock(block.time, unmatchedInputs);
 });
+
+console.log('Final balance: ' + finalBalance + ' satoshis.');
