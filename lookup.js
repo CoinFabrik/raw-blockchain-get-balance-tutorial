@@ -19,7 +19,7 @@ console.log('Getting transactions related to address ' + addressString +' ...');
 
 var incoming = [],
   finalBalance = 0,
-  blockCache = require('./block-cache');
+  storedInputs = require('./stored-inputs');
 
 getBlocks(function(block) {
   var unmatchedInputs = [];
@@ -41,7 +41,7 @@ getBlocks(function(block) {
         console.log('Found incoming: ' + o.satoshis + ' satoshis. (txid: ' + tx.id + ' )');
         finalBalance += o.satoshis;
         incoming.push(incomingInfo);
-        if (blockCache.isSpent(block.time, incomingInfo)) {
+        if (storedInputs.isSpent(block.time, incomingInfo)) {
           console.log('Found outgoing: ' + o.satoshis + ' satoshis in block cache.');
           finalBalance -= o.satoshis;
         }
@@ -64,6 +64,6 @@ getBlocks(function(block) {
       }
     });
   });
-  blockCache.addBlock(block.time, unmatchedInputs);
+  storedInputs.addBlock(block.time, unmatchedInputs);
 });
 console.log('Final balance: ' + finalBalance + ' satoshis.');
